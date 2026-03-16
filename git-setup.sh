@@ -12,8 +12,8 @@ echo "────────────────────────�
 
 # ── Identity ──────────────────────────────────
 
-read -rp "Full name: " GIT_NAME
-read -rp "Email: " GIT_EMAIL
+read -rp "Full name: " GIT_NAME < /dev/tty
+read -rp "Email: " GIT_EMAIL < /dev/tty
 
 git config --global user.name "$GIT_NAME"
 git config --global user.email "$GIT_EMAIL"
@@ -58,7 +58,7 @@ fi
 # ── SSH Key ───────────────────────────────────
 
 echo ""
-read -rp "Paste your SSH public key from 1Password (or leave blank to skip): " SSH_PUB_KEY
+read -rp "Paste your SSH public key from 1Password (or leave blank to skip): " SSH_PUB_KEY < /dev/tty
 
 if [[ -n "$SSH_PUB_KEY" ]]; then
     git config --global user.signingkey "$SSH_PUB_KEY"
