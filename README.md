@@ -22,7 +22,7 @@ Opinionated Git configuration with 1Password SSH commit signing and sane default
 ### Option 1: One-liner
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOURUSER/dotfiles/main/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mdeloughry/ssh-setup/main/bootstrap.sh | bash
 ```
 
 This downloads `git-setup.sh`, verifies its SHA-256 checksum, shows you the contents, and asks for confirmation before running.
@@ -30,7 +30,7 @@ This downloads `git-setup.sh`, verifies its SHA-256 checksum, shows you the cont
 ### Option 2: Inspect first
 
 ```bash
-curl -fsSL -o bootstrap.sh https://raw.githubusercontent.com/YOURUSER/dotfiles/main/bootstrap.sh
+curl -fsSL -o bootstrap.sh https://raw.githubusercontent.com/mdeloughry/ssh-setup/main/bootstrap.sh
 less bootstrap.sh
 bash bootstrap.sh
 ```
@@ -38,7 +38,7 @@ bash bootstrap.sh
 ### Option 3: Run directly
 
 ```bash
-git clone https://github.com/YOURUSER/dotfiles.git
+git clone https://github.com/mdeloughry/ssh-setup.git
 cd dotfiles
 bash git-setup.sh
 ```
