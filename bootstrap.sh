@@ -17,7 +17,7 @@ set -euo pipefail
 # ── Config ─────────────────────────────────
 # Update these with your actual values:
 SCRIPT_URL="https://raw.githubusercontent.com/mdeloughry/ssh-setup/refs/heads/main/git-setup.sh"
-EXPECTED_SHA256="6c7cd07d3e9928b85fb7e8b62f84371bb9a406717ac318687b4a7f0e5b284fbc"
+EXPECTED_SHA256="84f69ca57791ffabbe725e52af94573bf3625d586929b4d4f3e550900ee8bde3"
 # To generate: shasum -a 256 git-setup.sh
 # ───────────────────────────────────────────
 

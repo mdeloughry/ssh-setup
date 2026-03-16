@@ -13,10 +13,65 @@ echo "────────────────────────�
 # ── Identity ──────────────────────────────────
 
 read -rp "Full name: " GIT_NAME < /dev/tty
-read -rp "Email: " GIT_EMAIL < /dev/tty
 
 git config --global user.name "$GIT_NAME"
-git config --global user.email "$GIT_EMAIL"
+
+echo ""
+echo "Do you do personal development, work development, or both?"
+echo "  [p] Personal only"
+echo "  [w] Work only"
+echo "  [b] Both"
+read -rp "Choice [p/w/b]: " DEV_TYPE < /dev/tty
+
+case "$DEV_TYPE" in
+    b|B)
+        echo ""
+        read -rp "Would you like different Git emails based on project folder? [y/N]: " FOLDER_EMAILS < /dev/tty
+
+        if [[ "$FOLDER_EMAILS" =~ ^[Yy]$ ]]; then
+            read -rp "Personal email: " PERSONAL_EMAIL < /dev/tty
+            read -rp "Work email: " WORK_EMAIL < /dev/tty
+
+            echo ""
+            echo "Enter the folder paths where your projects live."
+            echo "  (use ~ for home directory, e.g. ~/projects/personal)"
+            read -rp "Personal projects folder: " PERSONAL_DIR < /dev/tty
+            read -rp "Work projects folder: " WORK_DIR < /dev/tty
+
+            # Expand ~ to $HOME
+            PERSONAL_DIR="${PERSONAL_DIR/#\~/$HOME}"
+            WORK_DIR="${WORK_DIR/#\~/$HOME}"
+
+            # Ensure trailing slash for gitdir matching
+            [[ "$PERSONAL_DIR" != */ ]] && PERSONAL_DIR="${PERSONAL_DIR}/"
+            [[ "$WORK_DIR" != */ ]] && WORK_DIR="${WORK_DIR}/"
+
+            # Set personal as the global default
+            git config --global user.email "$PERSONAL_EMAIL"
+
+            # Create folder-specific gitconfig files
+            echo -e "[user]\n    email = $PERSONAL_EMAIL" > "$HOME/.gitconfig-personal"
+            echo -e "[user]\n    email = $WORK_EMAIL" > "$HOME/.gitconfig-work"
+
+            # Add includeIf directives
+            git config --global --remove-section "includeIf \"gitdir:${PERSONAL_DIR}\"" 2>/dev/null || true
+            git config --global --remove-section "includeIf \"gitdir:${WORK_DIR}\"" 2>/dev/null || true
+            git config --global "includeIf.gitdir:${PERSONAL_DIR}.path" "$HOME/.gitconfig-personal"
+            git config --global "includeIf.gitdir:${WORK_DIR}.path" "$HOME/.gitconfig-work"
+
+            echo "✅ Folder-based emails configured:"
+            echo "   ${PERSONAL_DIR} → $PERSONAL_EMAIL"
+            echo "   ${WORK_DIR} → $WORK_EMAIL"
+        else
+            read -rp "Email: " GIT_EMAIL < /dev/tty
+            git config --global user.email "$GIT_EMAIL"
+        fi
+        ;;
+    *)
+        read -rp "Email: " GIT_EMAIL < /dev/tty
+        git config --global user.email "$GIT_EMAIL"
+        ;;
+esac
 
 # ── 1Password SSH Commit Signing ──────────────
 
@@ -76,14 +131,25 @@ echo "Applying sane defaults..."
 # Default branch name
 git config --global init.defaultBranch main
 
-# Rebase on pull instead of merge commits
-git config --global pull.rebase true
+# Pull strategy
+echo ""
+echo "How should 'git pull' handle diverged branches?"
+echo "  [m] Merge (Recommended) - creates a merge commit to combine changes"
+echo "  [f] Fast-forward only - fails if branches have diverged"
+read -rp "Choice [m/f]: " PULL_STRATEGY < /dev/tty
 
-# Auto-stash before rebase, pop after
-git config --global rebase.autoStash true
-
-# Fast-forward only when pulling (no surprise merges)
-git config --global pull.ff only
+case "$PULL_STRATEGY" in
+    f|F)
+        git config --global pull.rebase false
+        git config --global pull.ff only
+        echo "✅ Pull strategy: fast-forward only"
+        ;;
+    *)
+        git config --global pull.rebase false
+        git config --global --unset pull.ff 2>/dev/null || true
+        echo "✅ Pull strategy: merge"
+        ;;
+esac
 
 # Better diff algorithm
 git config --global diff.algorithm histogram
@@ -146,11 +212,19 @@ echo "   Name:     $(git config --global user.name)"
 echo "   Email:    $(git config --global user.email)"
 echo "   Signing:  $(git config --global gpg.format 2>/dev/null || echo 'not set')"
 echo "   Branch:   $(git config --global init.defaultBranch)"
-echo "   Pull:     rebase + ff-only"
+echo "   Pull:     $(git config --global pull.ff 2>/dev/null && echo 'fast-forward only' || echo 'merge')"
+
+if [[ -f "$HOME/.gitconfig-personal" ]] && [[ -f "$HOME/.gitconfig-work" ]]; then
+    echo ""
+    echo "   Folder-based emails:"
+    echo "   Personal: $(git config --file "$HOME/.gitconfig-personal" user.email)"
+    echo "   Work:     $(git config --file "$HOME/.gitconfig-work" user.email)"
+fi
+
 echo ""
 echo "📋 Next steps:"
 echo "   1. Make sure 1Password SSH Agent is enabled"
-echo "      (1Password → Settings → Developer → SSH Agent)"
+echo "      (1Password -> Settings -> Developer -> SSH Agent)"
 echo "   2. Upload your SSH public key to GitHub/GitLab as a Signing Key"
 echo "   3. Test with: git commit --allow-empty -m 'test signed commit'"
 echo "   4. Verify with: git log --show-signature -1"
