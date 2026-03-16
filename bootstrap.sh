@@ -65,7 +65,7 @@ cat "$SCRIPT_PATH"
 echo ""
 echo "─────────────────────────────────────"
 echo ""
-read -rp "Run this script? [y/N] " CONFIRM
+read -rp "Run this script? [y/N] " CONFIRM < /dev/tty
 
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     bash "$SCRIPT_PATH"
