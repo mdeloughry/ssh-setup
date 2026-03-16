@@ -17,7 +17,7 @@ set -euo pipefail
 # ── Config ─────────────────────────────────
 # Update these with your actual values:
 SCRIPT_URL="https://raw.githubusercontent.com/YOURUSER/dotfiles/main/git-setup.sh"
-EXPECTED_SHA256="UPDATE_THIS_WITH_ACTUAL_HASH"
+EXPECTED_SHA256="2998b3c298df39dc904dc513f0cf81d03c2e1936f3f9f2910fe0080f28ddc8ff"
 # To generate: shasum -a 256 git-setup.sh
 # ───────────────────────────────────────────
 
